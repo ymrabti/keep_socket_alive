@@ -3,7 +3,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
   io.Socket? socket;
-  final String serverUrl = 'http://192.168.1.65:3000';
+  final String serverUrl = 'http://192.168.8.100:3000';
   Function(Map<String, dynamic>)? onNotification;
 
   Future<void> init() async {

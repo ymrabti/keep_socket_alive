@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 
 class NativeSocketService {
-  static const MethodChannel _methodChannel = MethodChannel('com.example.flutter_socketio_background/service');
-  static const EventChannel _eventChannel = EventChannel('com.example.flutter_socketio_background/notifications');
+  static const MethodChannel _methodChannel = MethodChannel('com.example.keep_socket_alive/service');
+  static const EventChannel _eventChannel = EventChannel('com.example.keep_socket_alive/notifications');
 
   // Stream controller for notification events
   final StreamController<Map<String, dynamic>> _notificationController = StreamController<Map<String, dynamic>>.broadcast();

@@ -1,4 +1,4 @@
-// File: android/app/src/main/kotlin/com/example/flutter_socketio_background/BootCompletedReceiver.kt
+// File: android/app/src/main/kotlin/com/example/keep_socket_alive/BootCompletedReceiver.kt
 package com.example.keep_socket_alive
 
 import android.content.BroadcastReceiver

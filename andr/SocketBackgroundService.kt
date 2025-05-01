@@ -1,4 +1,4 @@
-// File: android/app/src/main/kotlin/com/example/flutter_socketio_background/SocketBackgroundService.kt
+// File: android/app/src/main/kotlin/com/example/keep_socket_alive/SocketBackgroundService.kt
 package com.example.keep_socket_alive
 
 import android.app.Notification
@@ -118,7 +118,7 @@ class SocketBackgroundService : Service() {
                                sharedPreferences.edit().putString("deviceId", it).apply()
                            }
             
-            val serverUrl = "http://10.0.2.2:3000" // Change this to your server URL
+            val serverUrl = "http://192.168.8.100:3000" // Change this to your server URL
             
             val options = IO.Options().apply {
                 reconnection = true

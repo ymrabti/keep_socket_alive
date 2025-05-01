@@ -1,5 +1,5 @@
 
-// File: android/app/src/main/kotlin/com/example/flutter_socketio_background/ConnectionChangeReceiver.kt
+// File: android/app/src/main/kotlin/com/example/keep_socket_alive/ConnectionChangeReceiver.kt
 package com.example.keep_socket_alive
 
 import android.content.BroadcastReceiver

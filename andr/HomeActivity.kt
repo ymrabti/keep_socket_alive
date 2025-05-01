@@ -1,4 +1,4 @@
-package com.example.keep_socket_alive
+// package com.example.keep_socket_alive
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -11,11 +11,16 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 });
+// File: server.js (update existing file)
+
+// Add reconnection tracking
+const lastSeen = new Map(); // To track last time a device was seen
+const pendingMessages = new Map(); // Queue messages for offline devices
 
 // Map to store connected clients
 const clients = new Map();
-
 io.on('connection', (socket) => {
+    console.log('New client connected: ', socket.id);
     console.log('New client connected: ', socket.id);
     setInterval(() => {
         socket.emit('notification', {
@@ -23,42 +28,87 @@ io.on('connection', (socket) => {
             body: 'This is a test notification from the server',
             timestamp: new Date().toISOString()
         })
-    }, 20_000)
+    }, 5_000)
     // Store the client connection
     socket.on('register', (deviceId) => {
         console.log(`Device registered: ${deviceId} with socket: ${socket.id}`);
         clients.set(deviceId, socket.id);
+        lastSeen.set(deviceId, Date.now());
+
+        // Send any pending messages
+        if (pendingMessages.has(deviceId)) {
+            const messages = pendingMessages.get(deviceId);
+            messages.forEach(msg => {
+                socket.emit('notification', msg);
+            });
+            pendingMessages.delete(deviceId);
+        }
     });
 
-    // Handle disconnect
+    // Handle heartbeat to know client is alive
+    socket.on('heartbeat', (deviceId) => {
+        lastSeen.set(deviceId, Date.now());
+    });
+
+    // Handle disconnect with grace period
     socket.on('disconnect', () => {
         console.log('Client disconnected: ', socket.id);
 
-        // Remove client from the map
+        // Find the device ID for this socket
+        let disconnectedDeviceId = null;
         for (let [deviceId, socketId] of clients.entries()) {
             if (socketId === socket.id) {
-                clients.delete(deviceId);
-                console.log(`Removed device: ${deviceId}`);
+                disconnectedDeviceId = deviceId;
                 break;
             }
+        }
+
+        if (disconnectedDeviceId) {
+            // Don't remove immediately, just mark the disconnect time
+            lastSeen.set(disconnectedDeviceId, Date.now());
+
+            // Keep the record in the clients map for a grace period
+            // The cleanup will be handled by a periodic task
         }
     });
 });
 
-// Route to send test notifications
+// Add a cleanup task for truly disconnected clients
+setInterval(() => {
+    const now = Date.now();
+    const OFFLINE_THRESHOLD = 15 * 60 * 1000; // 15 minutes
+
+    for (let [deviceId, lastSeenTime] of lastSeen.entries()) {
+        if (now - lastSeenTime > OFFLINE_THRESHOLD) {
+            // Device has been offline for more than the threshold
+            console.log(`Device ${deviceId} considered truly offline, removing`);
+            clients.delete(deviceId);
+            lastSeen.delete(deviceId);
+        }
+    }
+}, 60000); // Run every minute
+
+// Queue messages for offline devices
 app.get('/send-notification/:deviceId', (req, res) => {
     const deviceId = req.params.deviceId;
     const socketId = clients.get(deviceId);
+    const notification = {
+        title: 'Test Notification',
+        body: 'This is a test notification from the server',
+        timestamp: new Date().toISOString()
+    };
 
     if (socketId) {
-        io.to(socketId).emit('notification', {
-            title: 'Test Notification',
-            body: 'This is a test notification from the server',
-            timestamp: new Date().toISOString()
-        });
+        // Device is online, send directly
+        io.to(socketId).emit('notification', notification);
         res.send({ success: true, message: 'Notification sent' });
     } else {
-        res.status(404).send({ success: false, message: 'Device not found' });
+        // Device is offline, queue the message
+        if (!pendingMessages.has(deviceId)) {
+            pendingMessages.set(deviceId, []);
+        }
+        pendingMessages.get(deviceId).push(notification);
+        res.send({ success: true, message: 'Notification queued for offline device' });
     }
 });
 

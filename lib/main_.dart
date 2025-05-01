@@ -12,6 +12,7 @@ import 'services/notification_service.dart';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     // Initialize services
+    await Workmanager().cancelByUniqueName('socketio.reconnect');
     final notificationService = NotificationService();
     await notificationService.init();
 
@@ -33,14 +34,14 @@ void main() async {
   // Initialize work manager for background tasks
   await Workmanager().initialize(
     callbackDispatcher,
-    isInDebugMode: true,
+    isInDebugMode: false,
   );
 
   // Register periodic task
   await Workmanager().registerPeriodicTask(
     'socketio.reconnect',
     'socketReconnectTask',
-    frequency: const Duration(minutes: 15), // Every 15 minutes
+    frequency: const Duration(seconds: 5), // Every 15 minutes
     constraints: Constraints(
       networkType: NetworkType.connected,
     ),
