@@ -50,6 +50,11 @@ io.on('connection', (socket) => {
         lastSeen.set(deviceId, Date.now());
     });
 
+    // Handle log to know client is alive
+    socket.on('log', (deviceId) => {
+        console.log(deviceId, Date.now());
+    });
+
     // Handle disconnect with grace period
     socket.on('disconnect', () => {
         console.log('Client disconnected: ', socket.id);
