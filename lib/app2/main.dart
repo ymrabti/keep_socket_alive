@@ -70,7 +70,7 @@ void onStart(ServiceInstance service) async {
       );
     }
 
-    // Send data to the main app
+    // Send data to the Main app
     service.invoke('update', {
       'current_time': DateTime.now().toString(),
     });
@@ -227,7 +227,6 @@ void main() async {
   // Initialize background service for continuous operation
   await initializeBackgroundService();
 
-  // Start the main app
   runApp(const MyApp());
 }
 
@@ -270,7 +269,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadServerUrl() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String url = prefs.getString('server_url') ?? 'http://your-server.com';
+    String url = prefs.getString('server_url') ?? 'http://192.168.8.100:3000';
     setState(() {
       _serverUrlController.text = url;
     });
@@ -344,7 +343,7 @@ class _HomePageState extends State<HomePage> {
               controller: _serverUrlController,
               decoration: const InputDecoration(
                 labelText: 'Socket Server URL',
-                hintText: 'http://your-server.com',
+                hintText: 'http://192.168.8.100:3000',
                 border: OutlineInputBorder(),
               ),
             ),
